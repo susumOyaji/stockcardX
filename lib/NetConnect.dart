@@ -135,7 +135,7 @@ String _urlToFetch(String code) {
   
 
 
-
+/*
 Future<List<Price>> getserchi1(/*List getwidgets*/) async {
     String gcompanyName = "";
     String grealValue = "";
@@ -230,8 +230,8 @@ Future<List<Price>> getserchi1(/*List getwidgets*/) async {
      return gprices;//.toList();
     //});
 }//load
-
-
+*/
+/*
 Future<List<Price>> gridData( ) async {
     String companyName = "";
     String realValue = "";
@@ -338,7 +338,7 @@ Future<List<Price>> gridData( ) async {
   //});
 
  }//load
-
+*/
 
 
 

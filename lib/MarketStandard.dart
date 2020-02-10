@@ -10,7 +10,7 @@ import 'main.dart';
  //Nikkey And NewYork Dow Display
 class MaketStandard extends StatelessWidget{
   MaketStandard({this.stdwidgets});
-  final List<Price> stdwidgets;// = new List.generate(2, (index) => index);
+  final List<String> stdwidgets;// = new List.generate(2, (index) => index);
   //stdwidgets[0].polar ?? false;
  
   @override

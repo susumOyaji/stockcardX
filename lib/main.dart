@@ -107,10 +107,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textController = new TextEditingController();
   List widgets=[];// new List<Price>.filled(1, Price());
+  
   List<List<String>> rategets = [];
   List volumegats = [];
 	List<String> total = []; 	
-  List<Price> getwidgets = new List<Price>.filled(2,Price()); 
+   
   
   StorageControl storageControl;
   bool _isComposing = false; 
@@ -129,6 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
 List<String> codeItems = []; //codekey
 List<String> stockItems = [];//stock
 List<String> valueItems = []; //value
+
+
 
 List<String> acquiredAssetsItems = [];//取得資産 stock x value
 List<String> valuableAssetsItems = [];//評価資産 stock X presentvalue
@@ -246,8 +249,8 @@ static String code; //
     
     //_addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
 
-    getwidgets = await getserchi1();
-    //widgets = await gridData();
+    //getwidgets = await fetch(codeItems);//getserchi1();NetConnect.dart
+    widgets = await fetch(code);
     rategets = await riseRate1();
 	  volumegats = await volumeranking1();
     
@@ -290,6 +293,322 @@ static String code; //
     
     //_addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
   }
+
+  void _addChipfast(String code,String presentvalue, String beforeratio,String gain) {
+    var chipKey = Key('chip_key_$_keyNumberfast');
+    _keyNumberfast++;
+
+     
+    _chipListfast.add(
+      Chip(
+        key: chipKey,
+        backgroundColor: Color(0XFF8069A1),
+        elevation: 4,
+        //shadowColor: Colors.white,
+        padding: EdgeInsets.all(4),
+        avatar: CircleAvatar(
+          backgroundColor:  signalstate ? Colors.red : Colors.green,
+        ),
+        label: Text(code + presentvalue + beforeratio + gain,
+          style: TextStyle(color: Color(0XFFACACAE),
+            fontSize:12.0,
+            fontWeight: FontWeight.bold)
+        ),
+      ),
+    );
+  }
+
+
+  void _addChip(String code, String presentvalue, String deforerasio) {
+    //var chipKey = Key('chip_key_$_keyNumber');
+    var chipKey = Key("$_keyNumber");
+    _keyNumber++;
+
+    _chipList.add(
+      Chip(
+        key: chipKey,
+        backgroundColor: Color(0XFF12445D),
+        elevation: 8,
+        //shadowColor: Colors.white,
+        //padding: EdgeInsets.all(4),
+        avatar: CircleAvatar(
+          maxRadius: 10.0,
+          backgroundColor:
+              signalstate ? Colors.red : Colors.green,
+          child: Text(_keyNumber.toString()),
+        ),
+        label: Text(code + " " + presentvalue + "  " + deforerasio,
+            style: TextStyle(
+                color: Color(0XFFACACAE),
+                fontSize: 10.0,
+                fontWeight: FontWeight.bold)
+        ),
+        
+        //onSelected：() => _deleteChip(chipKey),
+        //onPressed:() => _deleteChip(chipKey),
+        //deleteButtonTooltipMessage: "dellete",
+        onDeleted: () => _deleteChip(chipKey),
+      ),
+    );
+  }
+
+
+  void _deleteChip(Key chipKey) {
+    setState(() => _chipList.removeWhere((Widget w) => w.key == chipKey));
+    ValueKey<String> listJsonData = chipKey;
+    int _index = int.parse(listJsonData.value);
+    
+    codeItems.removeAt(_index);stockItems.removeAt(_index);valueItems.removeAt(_index);
+    SharePrefs.setCodeItems(codeItems);SharePrefs.setStockItems(stockItems);SharePrefs.setValueItems(valueItems);
+    setState(() {
+      _keyNumber--;
+      
+    });
+  }
+
+
+  _reloadData() async {
+    index=0;
+    for (String codes in codeItems) {
+      codes= codes+".T";
+      await fetch(codes);
+      //_addChip(code, presentvalue, beforeratio);
+    }
+    setState(() {
+      
+    });
+  }
+
+
+  Widget _titleArea() {
+    return Container(
+      color: Color(0xFF0B4050),
+      child: Row(
+        //mainAxisAlignment: MainAxisAlignment.center,
+        //crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8.0,
+              runSpacing: 0.0,
+              direction: Axis.horizontal,
+              children:  _chipListfast,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _titleArea1() {
+    return Container(
+        height: 35.0,
+        color: Color(0xFF0B4050),
+        //margin: EdgeInsets.all(10.0),
+        padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+        child: Row(
+          // 1行目
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.only(left: 10.0, right: 10.0),
+                //padding: EdgeInsets.all(1.0),
+                //height: 70.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.grey,
+                ),
+                child: TextField(
+                  controller: codeCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'CodeNumber',
+                    labelStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.0,
+                        //height: 1,
+                        fontWeight: FontWeight.bold),
+                    border: InputBorder.none,
+                    errorText: _validateCode ? 'The CodeNumber input is empty.' : null,
+                    contentPadding: const EdgeInsets.only(
+                        left: 0.0, bottom: 15.0, top: 15.0),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.yellowAccent),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  autocorrect: false,
+                  onSubmitted: (text) {
+                    if (text.isEmpty) {
+                      _validateCode = true;
+                      setState(() {});
+                    } else {
+                      _validateCode = false;
+                      codeItems.add(text);
+                      codeCtrl.clear();
+                    }
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                // height: 70.0,
+                margin: EdgeInsets.only(left: 10.0, right: 10.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.grey,
+                ),
+                child: TextField(
+                  controller: stockCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Stock',
+                    labelStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.0,
+                        //height: 1,
+                        fontWeight: FontWeight.bold),
+                    border: InputBorder.none,
+                    errorText:
+                        _validateStock ? 'The Stock input is empty.' : null,
+                    contentPadding: const EdgeInsets.only(
+                        left: 0.0, bottom: 15.0, top: 15.0),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  autocorrect: true,
+                  onSubmitted: (text) {
+                    if (text.isEmpty) {
+                      _validateStock = true;
+                      setState(() {});
+                    } else {
+                      _validateStock = false;
+                      stockItems.add(text);
+                      SharePrefs.setStockItems(stockItems).then((_) {
+                        setState(() {});
+                      });
+                      stockCtrl.clear();
+                    }
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                //height: 70.0,
+                margin: EdgeInsets.only(left: 10.0, right: 10.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  color: Colors.grey,
+                ),
+                child: TextField(
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontWeight: FontWeight.bold),
+                  controller: valueCtrl,
+                  decoration: InputDecoration(
+                    labelText: "value",
+                    labelStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.0,
+                        //height: 1,
+                        fontWeight: FontWeight.bold),
+                   errorText:
+                        _validateValue ? 'The Value input is empty.' : null,
+                    contentPadding: const EdgeInsets.only(
+                        left: 0.0, bottom: 15.0, top: 15.0),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  autocorrect: true,
+                  onSubmitted: (text) {
+                    //TextFieldからの他のコールバック
+                    if (text.isEmpty) {
+                      _validateValue = true;
+                      setState(() {});
+                    } else {
+                      _validateValue = false;
+                      valueItems.add(text);
+                      SharePrefs.setValueItems(valueItems).then((_) {
+                        setState(() {});
+                      });
+                      valueCtrl.clear();
+                    }
+                  },
+                ),
+              ),
+            ),
+            InkWell(
+                child: Icon(
+                  Icons.add_circle,
+                  color: Colors.blueAccent,
+                  semanticLabel: "",
+                ),
+                onTap: () {
+                  if (/*eCtrl.text.isEmpty ||*/ codeCtrl.text.isEmpty ||
+                      stockCtrl.text.isEmpty ||
+                      valueCtrl.text.isEmpty) {
+                    //if (eCtrl.text.isEmpty) _validate = true;
+                    if (codeCtrl.text.isEmpty) _validateCode = true;
+                    if (stockCtrl.text.isEmpty) _validateStock = true;
+                    if (valueCtrl.text.isEmpty) _validateValue = true;
+                    setState(() {});
+                  } else {
+                    _validateCode = false;_validateStock = false;_validateValue = false;
+                    codeItems.add(codeCtrl.text);
+                    stockItems.add(stockCtrl.text);
+                    valueItems.add(valueCtrl.text);
+                    SharePrefs.setCodeItems(codeItems);
+                    SharePrefs.setStockItems(stockItems);
+                    SharePrefs.setValueItems(valueItems);
+                    setState(() {
+                      addfetch(codeCtrl.text);
+                     
+                    });
+                            
+                    codeCtrl.clear();stockCtrl.clear();valueCtrl.clear();
+                  }
+                }),
+            Switch(
+              value: _active,
+              activeColor: Colors.orange,
+              activeTrackColor: Colors.red,
+              inactiveThumbColor: Colors.blue,
+              inactiveTrackColor: Colors.green,
+              onChanged: _changeSwitch,
+            )
+          ],
+        ));
+  }
+
+
+  Widget _titleArealg() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFF0B4050),
+      ),
+      padding: EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 0.0),
+      child: SingleChildScrollView(
+        //controller: 
+        scrollDirection: Axis.vertical,
+        child: Wrap(
+          alignment: WrapAlignment.start,
+          spacing: 10.0,
+          runSpacing: 10.0,
+          direction: Axis.horizontal,
+          children: _chipList,
+        ),
+      ),
+    );
+  }
+
+
+
 
   Future fetch(String codes) async {
     final response = await http.get(
@@ -527,7 +846,7 @@ GridView gridView1() => new GridView.builder(
         Column(children:[
 					Column(children:[
             Container(
-						  child:MaketStandard( stdwidgets : getwidgets,),
+						  child:MaketStandard( stdwidgets : codeItems,),
 						),
             Container(
               child:PortFolio(
@@ -743,27 +1062,41 @@ GridView gridView1() => new GridView.builder(
 
 
   @override
-  Widget build(BuildContext context){
-    return new Scaffold(
-	  //appBar: new AppBar(
-	  //  title: new Text("widget.title"),
-	  //),
-    floatingActionButton:FloatingActionButton.extended(
-				backgroundColor: Color.fromARGB(0xFF, 0xFF, 0x7F, 0x00),
-				label: Text("ReLoad"),
-				tooltip: 'Refresh', // used by assistive technologies
-				icon: Icon(Icons.update),
-					onPressed: reload1,
-			),
-	  body: SafeArea(child:
-    
-      getBody(),
-      //floatingActionButtonLocation:FloatingActionButtonLocation.centerDocked,
-    ),                
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        //appBar: AppBar(
+        //title: Text('Fetch Data Example'),
+        //),
+        floatingActionButton: FloatingActionButton(
+          mini: true,
+          child: Icon(Icons.refresh),
+          onPressed: () => setState(() => _reloadData()),// _addChip("code", "", "")),
+        ),
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _titleArea(),
+              _titleArea1(),
+              Expanded(
+                flex: 5,
+                child: _titleArealg(),
+              ),
+              //Expanded(
+                //child: _buttonArea(),
+              //),
+            ],
+          ),
+        ),
+        
+      ),
     );
   }
 }
-
 
 
 
@@ -780,7 +1113,7 @@ GridView gridView1() => new GridView.builder(
 					  ]
 					),
 */
-
+/*
 class Finance{
 		//public static async Task<List<Price>> Parse( )
 		static List<Price> parse(var responce)
@@ -814,9 +1147,9 @@ class Finance{
 			return prices;
 		}
 	}
+*/
 
-
-
+/*
 	class Price
 	{
 	  String code ;//会社名コード
@@ -846,7 +1179,7 @@ class Finance{
 		//c# to {get; set;}
 		 //Price(this.code, this.stocks, this.itemprice,this.name,this.realValue,this.prev_day,this.percent );
 	}
-
+*/
 
  
 
