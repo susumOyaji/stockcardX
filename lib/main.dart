@@ -198,9 +198,10 @@ static String code; //
   @override
   void initState() {
 	  super.initState();
+    _init();
 	  //getwidgets[0].polar=false; //起動時のNull対策、読込データ準備待ち
     //rategets[0][1]="";
-    _setTargetPlatformForDesktop();
+    //_setTargetPlatformForDesktop();
 	  reload1();
     //getBody();
   }
@@ -234,8 +235,19 @@ static String code; //
 
 
   void reload1()async{
+    intprice=0;
+    index=0;
+    purchase = true;
+
+    for (String codes in codeItems) {
+      await fetch(codes);
+      //_addChip(code, presentvalue, changePriceRate);
+    }
+    
+    //_addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
+
     getwidgets = await getserchi1();
-    widgets = await gridData();
+    //widgets = await gridData();
     rategets = await riseRate1();
 	  volumegats = await volumeranking1();
     
@@ -260,7 +272,7 @@ static String code; //
     //String responce ="6758,200,1665\n6976,400,1746\n395,0,0\n";
     //_incrementCounter();
     await fetch(codes);
-    //_addChipfast(code, "  "+presentvalue, "  "+changePriceRate,"");
+    _addChipfast(code, "  "+presentvalue, "  "+changePriceRate,"");
     
   }
 
