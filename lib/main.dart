@@ -16,7 +16,7 @@ import 'package:flutter/foundation.dart'
 //import 'dart:async';
 //import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'MarketStandard.dart';
+//import 'MarketStandard.dart';
 import 'PortFolio.dart';
 //import 'Appreciation.dart';
 import 'NetConnect.dart';
@@ -209,13 +209,7 @@ static String code; //
     //getBody();
   }
 
-  getBody() {
-    if (showLoadingDialog()) {
-      return getProgressDialog();
-    } else {
-      return setupDisp();
-    }
-  }
+ 
 
   
 
@@ -231,10 +225,7 @@ static String code; //
   }
 
 
-  setupDisp() {
-   //historyDivider();
-   return base();
-  }
+
 
 
   void reload1()async{
@@ -836,221 +827,7 @@ GridView gridView1() => new GridView.builder(
  }
 
 
-  Widget base(){
-    return new Column(
-       //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-       //mainAxisSize: MainAxisSize.max,
-       //crossAxisAlignment: CrossAxisAlignment.stretch,
-		 children: <Widget>[
-      //Expanded(child:
-        Column(children:[
-					Column(children:[
-            Container(
-						  child:MaketStandard( stdwidgets : codeItems,),
-						),
-            Container(
-              child:PortFolio(
-						    portassetPrice : separation(assetTotalReturn()),
-							  portassetTotal : separation(assetPriceReturn()),
-							  portassetvalue:  separation(assetValueReturn()),
-						  ),
-						),
-					],),
-          Row(children:[  
-                Expanded(child:
-                  Container(
-                  margin: EdgeInsets.only(left: 5.0),
-                  //padding: EdgeInsets.all(1.0),
-                  //height: 40.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.0),
-                    color: Colors.grey,
-                  ),
-                  child: TextField(
-                    controller: codeCtrl,
-                    decoration: InputDecoration(
-                    labelText: 'CodeNumber',
-                    labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0,
-                        //height: 1,
-                        fontWeight: FontWeight.bold),
-                    border: InputBorder.none,
-                    errorText: _validateCode ? 'The CodeNumber input is empty.' : null,
-                    contentPadding: const EdgeInsets.only(
-                        left: 0.0, bottom: 15.0, top: 15.0),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.yellowAccent),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  autocorrect: false,
-                  onSubmitted: (text) {
-                    if (text.isEmpty) {
-                      _validateCode = true;
-                      setState(() {});
-                    } else {
-                      _validateCode = false;
-                      codeItems.add(text);
-                      codeCtrl.clear();
-                    }
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                // height: 70.0,
-                margin: EdgeInsets.only(left: 5.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.0),
-                  color: Colors.grey,
-                ),
-                child: TextField(
-                  controller: stockCtrl,
-                  decoration: InputDecoration(
-                    labelText: 'Stock',
-                    labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0,
-                        //height: 1,
-                        fontWeight: FontWeight.bold),
-                    border: InputBorder.none,
-                    errorText:
-                        _validateStock ? 'The Stock input is empty.' : null,
-                    contentPadding: const EdgeInsets.only(
-                        left: 0.0, bottom: 15.0, top: 15.0),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  autocorrect: true,
-                  onSubmitted: (text) {
-                    if (text.isEmpty) {
-                      _validateStock = true;
-                      setState(() {});
-                    } else {
-                      _validateStock = false;
-                      stockItems.add(text);
-                      SharePrefs.setStockItems(stockItems).then((_) {
-                        setState(() {});
-                      });
-                      stockCtrl.clear();
-                    }
-                  },
-                ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                //height: 70.0,
-                margin: EdgeInsets.only(left: 5.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.0),
-                  color: Colors.grey,
-                ),
-                child: TextField(
-                  style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontWeight: FontWeight.bold),
-                  controller: valueCtrl,
-                  decoration: InputDecoration(
-                    labelText: "value",
-                    labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0,
-                        //height: 1,
-                        fontWeight: FontWeight.bold),
-                   errorText:
-                        _validateValue ? 'The Value input is empty.' : null,
-                    contentPadding: const EdgeInsets.only(
-                        left: 0.0, bottom: 15.0, top: 15.0),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  autocorrect: true,
-                  onSubmitted: (text) {
-                    //TextFieldからの他のコールバック
-                    if (text.isEmpty) {
-                      _validateValue = true;
-                      setState(() {});
-                    } else {
-                      _validateValue = false;
-                      valueItems.add(text);
-                      SharePrefs.setValueItems(valueItems).then((_) {
-                        setState(() {});
-                      });
-                      valueCtrl.clear();
-                    }
-                  },
-                ),
-              ),
-            ),
-            InkWell(
-                child: Icon(
-                  Icons.add_circle,
-                  color: Colors.blueAccent,
-                  semanticLabel: "",
-                ),
-                onTap: () {
-                  if (/*eCtrl.text.isEmpty ||*/ codeCtrl.text.isEmpty ||
-                      stockCtrl.text.isEmpty ||
-                      valueCtrl.text.isEmpty) {
-                    //if (eCtrl.text.isEmpty) _validate = true;
-                    if (codeCtrl.text.isEmpty) _validateCode = true;
-                    if (stockCtrl.text.isEmpty) _validateStock = true;
-                    if (valueCtrl.text.isEmpty) _validateValue = true;
-                    setState(() {});
-                  } else {
-                    _validateCode = false;_validateStock = false;_validateValue = false;
-                    codeItems.add(codeCtrl.text);
-                    stockItems.add(stockCtrl.text);
-                    valueItems.add(valueCtrl.text);
-                    SharePrefs.setCodeItems(codeItems);
-                    SharePrefs.setStockItems(stockItems);
-                    SharePrefs.setValueItems(valueItems);
-                    setState(() {
-                      addfetch(codeCtrl.text);
-                     
-                    });
-                            
-                    codeCtrl.clear();stockCtrl.clear();valueCtrl.clear();
-                  }
-                }),
-            Switch(
-              value: _active,
-              activeColor: Colors.orange,
-              activeTrackColor: Colors.red,
-              inactiveThumbColor: Colors.blue,
-              inactiveTrackColor: Colors.green,
-              onChanged: _changeSwitch,
-            ),
-              
-          ],),
-        ],),
-        //),
-        Expanded(child: 
-				  Container(
-            child:gridView1(),
-					),
-				),
-              /*
-              Container(child:
-                Appreciation(stdwidgets : rategets),
-							),
-						  Container(child: 
-                Volume(volumewidgets : volumegats,), 
-              )
-              */
-      ],);
-        
-        
-    
-    
-  }
+  
 
 
 
@@ -1070,7 +847,9 @@ GridView gridView1() => new GridView.builder(
         //title: Text('Fetch Data Example'),
         //),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Color.fromARGB(0xFF, 0xFF, 0x7F, 0x00),
           mini: true,
+          tooltip: 'Refresh',
           child: Icon(Icons.refresh),
           onPressed: () => setState(() => _reloadData()),// _addChip("code", "", "")),
         ),
@@ -1084,7 +863,7 @@ GridView gridView1() => new GridView.builder(
               _titleArea1(),
               Expanded(
                 flex: 5,
-                child: _titleArealg(),
+                child: gridView1(),//_titleArealg(),
               ),
               //Expanded(
                 //child: _buttonArea(),
