@@ -153,11 +153,15 @@ final TextEditingController stockCtrl = TextEditingController();
 final TextEditingController valueCtrl = TextEditingController();
 
 
-static String code; //
-  static String presentvalue = "non"; //現在値
-  static String changePriceRate = "non"; //前日比%
-  static String changePriceValue = "non"; //前日比¥
-  static bool signalstate = true; //Up or Down
+static String code= "non";
+List<String> codeList =[]; //
+static String presentvalue = "non"; //現在値
+List<String> presentvalueList =[];
+static String changePriceRate = "non"; //前日比%
+List<String> changePriceRateList =[];
+static String changePriceValue = "non"; //前日比¥
+List<String> changePriceValueList =[];
+static bool signalstate = true; //Up or Down
 
   var _chipListfast = List<Chip>();
   var _chipList = List<Chip>();
@@ -166,7 +170,7 @@ static String code; //
   String price = "";
   String codename; //="Null to String";
   int intprice=0;
-  int index=0;
+  //int myindex=0;
   bool purchase = false;
   String stringprice ="";
   String gain="0";
@@ -176,7 +180,8 @@ static String code; //
    void _init() async {
     await SharePrefs.setInstance();
 
-    codeItems = SharePrefs.getCodeItems();
+    codeItems = SharePrefs?.getCodeItems()?? "non";
+  
     stockItems = SharePrefs.getStockItems();
     valueItems = SharePrefs.getValueItems();
     acquiredAssetsItems = SharePrefs.getacquiredAssetsItems();//取得資産
@@ -194,18 +199,39 @@ static String code; //
 
 
 
+  
 
+ 
+ getBody() {
+    if (showLoadingDialog()) {
+      return getProgressDialog();
+    } else {
+      return _init();
+    }
+  }
+
+  getProgressDialog() {
+    return new Center(child: new CircularProgressIndicator());
+  }
+
+  showLoadingDialog() {
+    if (codeList.length == 0) {
+      return false;
+    }
+      return true;
+  }
 
 
 
   @override
   void initState() {
 	  super.initState();
+   
     _init();
 	  //getwidgets[0].polar=false; //起動時のNull対策、読込データ準備待ち
     //rategets[0][1]="";
     //_setTargetPlatformForDesktop();
-	  reload1();
+	  //reload1();
     //getBody();
   }
 
@@ -213,24 +239,12 @@ static String code; //
 
   
 
-  getProgressDialog() {
-    return new Center(child: new CircularProgressIndicator());
-  }
-
-  showLoadingDialog() {
-    if (widgets.length == 0) {
-      return true;
-    }
-      return false;
-  }
-
 
 
 
 
   void reload1()async{
     intprice=0;
-    index=0;
     purchase = true;
 
     for (String codes in codeItems) {
@@ -240,7 +254,7 @@ static String code; //
     
     //_addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
 
-    //getwidgets = await fetch(codeItems);//getserchi1();NetConnect.dart
+   // getwidgets = await fetch(codeItems);//getserchi1();NetConnect.dart
     widgets = await fetch(code);
     rategets = await riseRate1();
 	  volumegats = await volumeranking1();
@@ -274,15 +288,20 @@ static String code; //
     //String responce ="6758,200,1665\n6976,400,1746\n395,0,0\n";
     //_incrementCounter();
     intprice=0;
-    index=0;
+   
     purchase = true;
 
     for (String codes in codeItems) {
       await fetch(codes);
-      //_addChip(code, presentvalue, changePriceRate);
+     codeList.add(code);// = "code";
+     presentvalueList.add(presentvalue);
+     changePriceRateList.add(changePriceRate);
+     changePriceValueList.add(changePriceValue);
+     
+     // _addChip(code, presentvalue, changePriceRate);
     }
     
-    //_addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
+    _addChipfast("Gain:",gain,"   取得額: "+valueSum, "   評価額: "+presentvalueSUm);
   }
 
   void _addChipfast(String code,String presentvalue, String beforeratio,String gain) {
@@ -359,8 +378,7 @@ static String code; //
 
 
   _reloadData() async {
-    index=0;
-    for (String codes in codeItems) {
+   for (String codes in codeItems) {
       codes= codes+".T";
       await fetch(codes);
       //_addChip(code, presentvalue, beforeratio);
@@ -607,10 +625,11 @@ static String code; //
     final String json = response.body;
     String ret;
     String value;
-    String code;
-    int intprice;
-    String changePriceRate = "non"; //前日比%;
-    String changePriceValue = "non"; //前日比¥
+    int _index=0;
+    //String code;
+    //int intprice;
+    //String changePriceRate = "non"; //前日比%;
+    //String changePriceValue = "non"; //前日比¥
 
 
 
@@ -665,20 +684,20 @@ static String code; //
           } catch (exception) {
             intprice = 0;
           }
-          acquiredAssetsItems.add((int.parse(stockItems[index]) * int.parse(valueItems[index])).toString());//取得資産
+          acquiredAssetsItems.add((int.parse(stockItems[_index]) * int.parse(valueItems[_index])).toString());//取得資産
           
           try{
-            valuableAssetsItems.add((int.parse(value.replaceAll(",", "")) * int.parse(stockItems[index])).toString());//評価資産
+            valuableAssetsItems.add((int.parse(value.replaceAll(",", "")) * int.parse(stockItems[_index])).toString());//評価資産
           }catch(exception){
             valuableAssetsItems.add("0");
           }
     
           setState(() {
-            acquiredAssetsSum = acquiredAssetsSum + int.parse(acquiredAssetsItems[index]);//取得資産合計
+            acquiredAssetsSum = acquiredAssetsSum + int.parse(acquiredAssetsItems[_index]);//取得資産合計
             valueSum = separation(acquiredAssetsSum);
             acquiredAssetsSumString.add(valueSum.toString());
     
-            valuableAssetsSum = valuableAssetsSum + int.parse(valuableAssetsItems[index]);//評価資産
+            valuableAssetsSum = valuableAssetsSum + int.parse(valuableAssetsItems[_index]);//評価資産
             presentvalueSUm = separation(valuableAssetsSum);
             valuableAssetsSumString.add(presentvalueSUm.toString());
     
@@ -686,7 +705,7 @@ static String code; //
     
           });
          
-          index++;
+          _index++;
         }
     
     
@@ -719,11 +738,14 @@ static String code; //
 
 ////////////////////////////////////////////////////
 
-GridView gridView1() => new GridView.builder(
+GridView gridView() => new GridView.builder(
   scrollDirection: Axis.vertical,
-  itemCount: widgets.length ,//+20,//<-- setState()
+  itemCount: codeItems?.length ?? "",//+20,//<-- setState()
   gridDelegate:new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-  itemBuilder: (BuildContext context, int index) {
+  itemBuilder: (BuildContext context, int index ) {
+      if (index >= codeItems.length) {
+                    codeItems.addAll(["pic0", "pic1", "pic2", "pic3", "pic4", "pic5",]);
+                  }
 	return new GestureDetector(
 	  child: new Card(
 		  color: Colors.grey[850],
@@ -733,17 +755,18 @@ GridView gridView1() => new GridView.builder(
 			    crossAxisAlignment: CrossAxisAlignment.center,
 			    mainAxisAlignment: MainAxisAlignment.center,
 			    children: <Widget>[
-			      new Text("(${widgets[index].code}) "+"${widgets[index].name}",
-				      style: TextStyle(fontFamily: 'Roboto-Thin',fontSize: 10.0, color: Colors.white),),
-			      new Text("現在値 ${separation(widgets[index].realValue)}",
-				      style: TextStyle(fontFamily: 'Roboto',fontSize: 10.0, color: Colors.white),),
-			      new Text("利益　${separation(widgets[index].gain)}",
-				      style: TextStyle(fontFamily: 'Roboto',fontSize: 10.0,color: Colors.yellow),),
-			      new Padding(
-				      padding: new EdgeInsets.only(top: 15.0, right: 0.0, bottom: 0.0, left: 0.0),
-				        child:SizedBox(
-				          height: 15.0,
-				          width: 60.0,  
+			      new Text("(${code[index]}) "+"${codeList[index]}",
+				      style: TextStyle(fontFamily: 'Roboto-Thin',fontSize: 1.0, color: Colors.white),),
+			      new Text("現在値 {separation(widgets[index].realValue)}",
+				      style: TextStyle(fontFamily: 'Roboto',fontSize: 1.0, color: Colors.white),),
+			      new Text("利益　{separation(widgets[index].gain)}",
+				      style: TextStyle(fontFamily: 'Roboto',fontSize: 1.0,color: Colors.yellow),),
+			     // new Padding(
+				     // padding: new EdgeInsets.only(top: 15.0, right: 0.0, bottom: 0.0, left: 0.0),
+				        //child:
+                SizedBox(
+				          //height: 15.0,
+				          //width: 60.0,  
 				          child:RaisedButton(
 					          padding: EdgeInsets.all(0.0),
 					          disabledColor: Colors.orange,
@@ -751,14 +774,14 @@ GridView gridView1() => new GridView.builder(
 					            borderRadius: BorderRadius.all(Radius.circular(2.0)),
 					          ),
 					          color: widgets[index].polar ? Colors.red : Colors.green,
-					          child: new Text( widgets[index].percentcheng ? '${widgets[index].prevday}' : '${widgets[index].percent}',
+					          child: new Text( widgets[index].percentcheng ? '{widgets[index].prevday}' : '{widgets[index].percent}',
 									    style: TextStyle(fontSize: 10.0, color: Colors.black),),
 					          onPressed: () => setState((){
 					            widgets[index].percentcheng = !widgets[index].percentcheng;
 					          }),
 				          ),
 				        ),
-			        ),
+			        //),
 			    ],
 			  ),
 			),
@@ -861,10 +884,13 @@ GridView gridView1() => new GridView.builder(
             children: <Widget>[
               _titleArea(),
               _titleArea1(),
+              
               Expanded(
                 flex: 5,
-                child: gridView1(),//_titleArealg(),
+                child: getBody(),// gridView(),//_titleArealg(),
               ),
+
+             
               //Expanded(
                 //child: _buttonArea(),
               //),
