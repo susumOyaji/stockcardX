@@ -178,16 +178,14 @@ static bool signalstate = true; //Up or Down
 
 
    void _init() async {
+   
     await SharePrefs.setInstance();
-
     codeItems = SharePrefs?.getCodeItems()?? "non";
   
     stockItems = SharePrefs.getStockItems();
     valueItems = SharePrefs.getValueItems();
     acquiredAssetsItems = SharePrefs.getacquiredAssetsItems();//取得資産
     valuableAssetsItems = SharePrefs.getvaluableAssetsItems();
-
-
 
     await loadDatafast("998407.O");
     await loadDatafast("^DJI");
@@ -206,7 +204,7 @@ static bool signalstate = true; //Up or Down
     if (showLoadingDialog()) {
       return getProgressDialog();
     } else {
-      return _init();
+      return gridView1();
     }
   }
 
@@ -216,18 +214,26 @@ static bool signalstate = true; //Up or Down
 
   showLoadingDialog() {
     if (codeList.length == 0) {
-      return false;
-    }
+      print('codeList-true');print(codeList);
       return true;
+    }
+      print('codeList-faluse'); print(codeList);
+      return false;
   }
 
 
 
   @override
   void initState() {
-	  super.initState();
+	   _init();
+
    
-    _init();
+
+    
+    
+    super.initState();
+   
+   
 	  //getwidgets[0].polar=false; //起動時のNull対策、読込データ準備待ち
     //rategets[0][1]="";
     //_setTargetPlatformForDesktop();
@@ -293,11 +299,13 @@ static bool signalstate = true; //Up or Down
 
     for (String codes in codeItems) {
       await fetch(codes);
-     codeList.add(code);// = "code";
-     presentvalueList.add(presentvalue);
-     changePriceRateList.add(changePriceRate);
-     changePriceValueList.add(changePriceValue);
-     
+      setState(() {
+        codeList.add(code);// = "code";
+        presentvalueList.add(presentvalue);
+        changePriceRateList.add(changePriceRate);
+        changePriceValueList.add(changePriceValue);
+
+    });
      // _addChip(code, presentvalue, changePriceRate);
     }
     
@@ -738,15 +746,35 @@ static bool signalstate = true; //Up or Down
 
 ////////////////////////////////////////////////////
 
+GridView gridView1() => new GridView.builder(
+   
+     itemCount: codeItems.length,
+     gridDelegate:new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),    
+     itemBuilder: (BuildContext context, int index) {
+     return GestureDetector(
+      child:Card(
+        child: Padding(
+          child: Text('${codeList[index]}', style: TextStyle(fontSize: 22.0),),
+          padding: EdgeInsets.all(20.0),
+          ),
+                    ),
+                  );
+                  },
+                
+              );
+  
+
+
+  
+
+
+
 GridView gridView() => new GridView.builder(
   scrollDirection: Axis.vertical,
   itemCount: codeItems?.length ?? "",//+20,//<-- setState()
   gridDelegate:new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
   itemBuilder: (BuildContext context, int index ) {
-      if (index >= codeItems.length) {
-                    codeItems.addAll(["pic0", "pic1", "pic2", "pic3", "pic4", "pic5",]);
-                  }
-	return new GestureDetector(
+  return new GestureDetector(
 	  child: new Card(
 		  color: Colors.grey[850],
 		  elevation: 5.0,
@@ -755,7 +783,7 @@ GridView gridView() => new GridView.builder(
 			    crossAxisAlignment: CrossAxisAlignment.center,
 			    mainAxisAlignment: MainAxisAlignment.center,
 			    children: <Widget>[
-			      new Text("(${code[index]}) "+"${codeList[index]}",
+			      new Text("({code[index]}) "+"{codeList[index]}",
 				      style: TextStyle(fontFamily: 'Roboto-Thin',fontSize: 1.0, color: Colors.white),),
 			      new Text("現在値 {separation(widgets[index].realValue)}",
 				      style: TextStyle(fontFamily: 'Roboto',fontSize: 1.0, color: Colors.white),),
@@ -857,8 +885,13 @@ GridView gridView() => new GridView.builder(
 
 
 
-
-  
+  Widget _photoItem(String image) {
+    var assetsImage = "assets/img/" + image + ".png";
+    return Container(
+      child: Image.asset(assetsImage, fit: BoxFit.cover,),
+    );
+  }
+   var listItem = ['one', 'two'];
 
 
   @override
@@ -881,7 +914,7 @@ GridView gridView() => new GridView.builder(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
+            children: [
               _titleArea(),
               _titleArea1(),
               
@@ -889,8 +922,7 @@ GridView gridView() => new GridView.builder(
                 flex: 5,
                 child: getBody(),// gridView(),//_titleArealg(),
               ),
-
-             
+            
               //Expanded(
                 //child: _buttonArea(),
               //),
